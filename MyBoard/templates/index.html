@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        function locationhref(){
+            // location.href = '/insert_form/'
+            location.href = "{% url 'forminsert' %}"
+            // http://127.0.0.1:8000/insert_form
+        }
+    </script>    
+</head>
+<body>
+    <h1>Hello, Django,  {{request.session.myname}}님 방갑습니다.</h1>
+
+    {% if request.session.myname %}
+        <h3><a href="{% url 'logout' %}">로그아웃</a></h3>
+    {% else %}
+        <h3><a href="{% url 'register' %}">회원가입</a></h3>
+        <h3><a href="{% url 'login' %}">로그인</a></h3>
+    {% endif %}
+
+    <table border="1">
+        <col width="50">
+        <col width="100">
+        <col width="500">
+        <col width="150">
+        <tr>
+            <th>번호</th>
+            <th>작성자</th>
+            <th>제목</th>
+            <th>작성일</th>
+        </tr>
+        {% for i in board_all %}
+            <tr>
+                <td>{{i.id}}</td>
+                <td>{{i.myname}}</td>
+                <td><a href="/detail/{{i.id}}">{{i.mytitle}}</a> </td>
+                            
+                <td>{{i.mydate}}</td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <td colspan="4" align="right">
+                <input type="button" value="글작성"  onclick="locationhref()">
+            </td>
+        </tr>
+    </table>
+    <!-- 처음으로 -->
+        <a href="?page=1">처음</a>
+        <!-- request의 get방식의 쿼리스트링으로 page값을 넘김 -->
+
+        <!-- 이전 -->
+        {% if board_all.has_previous %}
+            <a href="?page={{board_all.previous_page_number}}">이전</a>
+        {% else %}
+            <a>이전</a>
+        {% endif %}
+
+        <!-- 페이징 -->
+        <!-- for i in range(1,22) -->
+          {% for i in board_all.paginator.page_range %}     
+          
+            <!-- board_all.number는 현재 page번호 -->
+            {% if board_all.number|add:-5  <= i and board_all.number|add:+5 >= i %} 
+            <!-- 현재 페이지넘버가 10이라면,   if 5 <= i and  15 >=i   -->
+                {%if board_all.number == i %}
+                    <a>{{i}}</a>
+                {%else%}
+                    <a href = "?page={{i}}">{{i}}</a>
+                {%endif%}
+            {% endif %}
+            
+        {% endfor%}
+
+        <!-- 다음 -->
+        {% if board_all.has_next %}
+            <a href="?page={{board_all.next_page_number}}">다음</a>
+        {% else %} 
+            <a>다음</a>
+        {% endif %}
+    <!-- 마지막으로 -->
+    <a href="?page={{board_all.paginator.num_pages}}">마지막</a>
+</body>
+</html>
